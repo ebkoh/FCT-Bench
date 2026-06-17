@@ -1,7 +1,7 @@
 # FCT-Bench code repository
 
-Code and evaluation scripts accompanying FCT-Bench, a table-detection dataset
-for Korean public-sector documents.
+Code and evaluation scripts accompanying FCT-Bench, a table-detection
+annotation dataset for format-converted Korean public-sector PDF documents.
 
 The repository includes:
 
@@ -13,7 +13,8 @@ The repository includes:
 - blind re-annotation agreement analysis.
 
 The annotations, metadata, evaluation outputs, and other data files are
-distributed separately through the FCT-Bench Zenodo data record.
+distributed separately through the FCT-Bench Zenodo data record (see below).
+This repository contains source code only.
 
 ## Repository layout
 
@@ -30,6 +31,9 @@ structure_tree_check.py     Structure-tree inspection
 flowchart_filter.py         Post-hoc filtering
 flowchart_filter_search.py  Filter-threshold search
 blind_subset/               Blind-subset sampling and agreement scripts
+config.py                   Shared configuration
+requirements.txt            Python dependencies
+LICENSE                     MIT License
 ```
 
 ## Installation
@@ -46,13 +50,17 @@ The source collection consists of 18 HWP guidelines distributed by the Korea
 Authority of Land and Infrastructure Safety (KALIS) and one PDF guide
 distributed by the Korea Internet & Security Agency (KISA).
 
-The source documents are not redistributed in either this repository or the
-Zenodo data record. Official source locations, filenames, access dates, and
-other provenance information are provided in the deposited manifest.
+Neither the source documents nor the converted PDFs are redistributed in this
+repository or in the Zenodo data record. Official source locations, filenames,
+access dates, page counts, and SHA-256 checksums for each source file and each
+converted PDF are provided in the deposited manifest, so that users can verify
+they retrieved and reproduced the correct files.
 
 The KALIS HWP files were manually exported to PDF with one logical page per
 sheet before annotation and evaluation. The HWP-to-PDF conversion is not
-automated by the Python scripts in this repository.
+automated by the Python scripts in this repository; the converter and the
+conversion settings used are recorded in the deposited manifest. After
+conversion, page images are produced with `render_pages.py`.
 
 ## Data record
 
@@ -60,12 +68,15 @@ The following materials are distributed separately through Zenodo:
 
 - YOLO-format table annotations,
 - document and page identifiers,
-- provenance manifest,
+- provenance manifest (including SHA-256 checksums),
 - PDF metadata,
 - baseline predictions,
 - evaluation outputs,
 - annotation-integrity results, and
 - blind re-annotation data and results.
+
+The source documents, converted PDFs, and page images are not included and are
+reproduced by the user from the official sources listed in the manifest.
 
 Zenodo record:
 
@@ -104,8 +115,8 @@ blind_subset/
     compute_agreement.py
 ```
 
-The selected-page list, blind re-annotation labels, and reported agreement
-outputs are distributed through the Zenodo data record.
+The selected-page list, blind re-annotation labels, and the reported agreement
+output are distributed through the Zenodo data record.
 
 Agreement statistics can be reproduced using the deposited paths, for example:
 
@@ -139,7 +150,7 @@ by empty label files.
 ## Licences
 
 - Source code: MIT License
-- Author-generated annotations and metadata: `[DATA LICENCE]`
+- Author-generated annotations and metadata: `[DATA LICENCE, e.g. CC BY 4.0]`
 - Third-party source documents: terms stated by KALIS and KISA
 
 The source documents are not redistributed. The MIT License applies only to the
