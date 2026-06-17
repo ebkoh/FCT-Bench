@@ -1,0 +1,10 @@
+opencv-python
+pymupdf
+pdfplumber
+numpy
+camelot-py
+tabula-py
+transformers
+torch
+doclayout-yolo
+Pillow
