@@ -1,22 +1,53 @@
 import argparse
+import csv
+import io
 import json
 import math
 from collections import defaultdict
 from pathlib import Path
+
+# Page-count fields, in priority order, recognised across manifest formats.
+PAGE_COUNT_COLUMNS = ("page_count", "analysis_pdf_page_count", "annotation_page_count")
+
+
+def load_manifest_page_counts(path):
+    """Return {doc_id: page_count} from a JSON or delimited (TSV/CSV) manifest.
+
+    JSON: a list of records, each with doc_id and a page-count field.
+    TSV/CSV: a header row; the delimiter is auto-detected (tab vs comma) and a
+    UTF-8 BOM is tolerated. The first available page-count column is used.
+    """
+    path = Path(path)
+    text = path.read_text(encoding="utf-8-sig")  # tolerate a BOM
+    if path.suffix.lower() == ".json":
+        out = {}
+        for r in json.loads(text):
+            pages = next((r[c] for c in PAGE_COUNT_COLUMNS if r.get(c) not in (None, "")), None)
+            if pages is None:
+                raise SystemExit(f"manifest: no page-count field for {r.get('doc_id')}")
+            out[r["doc_id"]] = int(pages)
+        return out
+    header = text.splitlines()[0]
+    delimiter = "\t" if header.count("\t") >= header.count(",") else ","
+    reader = csv.DictReader(io.StringIO(text), delimiter=delimiter)
+    page_col = next((c for c in PAGE_COUNT_COLUMNS if c in (reader.fieldnames or [])), None)
+    if page_col is None:
+        raise SystemExit(f"manifest: no page-count column among {PAGE_COUNT_COLUMNS}")
+    return {row["doc_id"]: int(row[page_col]) for row in reader}
 
 
 def main():
     ap = argparse.ArgumentParser(description="Annotation integrity checks")
     ap.add_argument("--annotations", default="annotations",
                     help="root with <subset>/<doc>/page_*.txt")
-    ap.add_argument("--manifest", default="manifest.json")
+    ap.add_argument("--manifest", default="manifest.json",
+                    help="JSON or delimited (TSV/CSV) manifest with per-document page counts")
     ap.add_argument("--out", default="data_integrity_report.txt")
     args = ap.parse_args()
 
     ann_root = Path(args.annotations)
     ann_files = sorted(ann_root.glob("*/*/page_*.txt"))
-    manifest = json.loads(Path(args.manifest).read_text(encoding="utf-8"))
-    man_pages = {r["doc_id"]: r["page_count"] for r in manifest}
+    man_pages = load_manifest_page_counts(args.manifest)
 
     per_doc_files = defaultdict(list)
     for f in ann_files:
