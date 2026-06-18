@@ -1,26 +1,3 @@
-#!/usr/bin/env python3
-"""
-recompute_98_release_candidate.py
-
-Recompute blind-reannotation agreement on the 98-page subset (02_tunnel's two
-2-up pages removed after the 1-up reconversion), comparing against the
-RELEASE-CANDIDATE ground truth (i.e. *before* the v1.1 patch folded the four
-blind-found omissions into the GT).
-
-Why release-candidate GT (not the current v1.1 GT):
-  The four genuine omissions surfaced by this blind check
-  (10_pump_station p69, ISMS_P p197 x2, ISMS_P p237) were subsequently ADDED to
-  the GT via the v1.1 patch. Comparing against the current GT would therefore be
-  circular (validating the GT against the very boxes used to fix it) and yields a
-  non-credible 100% / 0-omission result. Comparing against the release-candidate
-  GT preserves the meaning of the check: an independent pass that caught 4 omissions.
-
-Implementation:
-  Reuse compute_agreement.py's exact matching/classification logic. The only
-  difference between current and release-candidate annotations is that those three
-  pages had ZERO original boxes pre-patch (confirmed: old report orig_bboxes==0 on
-  each). So we override their original side to empty.
-"""
 import json
 import statistics
 import sys
@@ -30,7 +7,7 @@ HERE = Path(__file__).resolve().parent
 PROJECT_ROOT = HERE.parent.parent
 sys.path.insert(0, str(HERE))
 
-from compute_agreement import (  # noqa: E402
+from compute_agreement import (  
     parse_yolo_file, greedy_match, find_original_path,
     find_reannotation_path, classify_unmatched,
 )
@@ -43,7 +20,6 @@ OUT = HERE / "agreement_report_98p_release_candidate.json"
 IOU_THRESHOLDS = [0.3, 0.5, 0.7, 0.9]
 PRIMARY = 0.5
 
-# Pages whose original boxes were added by the v1.1 patch (release-candidate had 0).
 PATCH_PAGES = {("10_pump_station", 69), ("ISMS_P", 197), ("ISMS_P", 237)}
 
 
@@ -137,9 +113,7 @@ def main():
 
     ps = rc["primary_threshold_summary"]
     d = rc["iou_distribution"]
-    print("=" * 64)
-    print("98-page subset (02_tunnel removed) vs RELEASE-CANDIDATE GT")
-    print("=" * 64)
+    print("98-page subset vs RELEASE-CANDIDATE GT")
     print(f"  sampled_pages        : {rc['settings']['sampled_pages']}")
     print(f"  Jaccard@0.5          : {ps['jaccard_agreement_pct']} %")
     print(f"  matched pairs        : {ps['matched_pairs']}")
