@@ -15,7 +15,7 @@ from compute_agreement import (
 PLAN = HERE / "blind_subset_plan.json"
 ORIG_ROOT = PROJECT_ROOT / "annotations"
 REANN_DIR = HERE / "blind_reannotation" / "labels"
-OUT = HERE / "agreement_report_98p_release_candidate.json"
+OUT = HERE / "agreement_report_release_candidate.json"
 
 IOU_THRESHOLDS = [0.3, 0.5, 0.7, 0.9]
 PRIMARY = 0.5
@@ -113,7 +113,7 @@ def main():
 
     ps = rc["primary_threshold_summary"]
     d = rc["iou_distribution"]
-    print("98-page subset vs RELEASE-CANDIDATE GT")
+    print("subset vs RELEASE-CANDIDATE GT")
     print(f"  sampled_pages        : {rc['settings']['sampled_pages']}")
     print(f"  Jaccard@0.5          : {ps['jaccard_agreement_pct']} %")
     print(f"  matched pairs        : {ps['matched_pairs']}")
@@ -130,7 +130,7 @@ def main():
     print("\n  genuine omission locations:")
     for o in rc["genuine_omission_locations"]:
         print(f"    - {o['doc_id']} p{o['page']}  ({o['omitted_in_original']} box)")
-    print(f"\n  [cross-check] same 98 pages vs CURRENT patched GT (circular): "
+    print(f"\n  [cross-check] same pages vs CURRENT patched GT (circular): "
           f"{cur['primary_threshold_summary']['jaccard_agreement_pct']}%, "
           f"omissions={cur['primary_threshold_summary']['disagreements']['genuine_omissions']}")
     print(f"\n  written: {OUT.relative_to(PROJECT_ROOT)}")
